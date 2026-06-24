@@ -419,8 +419,9 @@ async def add_memory(
             reference_time="2020-03-01T00:00:00Z"
         )
     """
-    global graphiti_service, queue_service
-
+    MAX_EPISODE_BODY_SIZE = 1_000_000  # 1MB limit to prevent DoS
+    if len(episode_body) > MAX_EPISODE_BODY_SIZE:
+        return ErrorResponse(error='episode_body exceeds maximum size of 1MB')
     if graphiti_service is None or queue_service is None:
         return ErrorResponse(error='Services not initialized')
 
