@@ -31,8 +31,10 @@ jobs:
       is_fork: ${{ steps.check.outputs.is_fork }}
     steps:
       - id: check
+        env:
+          IS_FORK: ${{ github.event.pull_request.head.repo.fork }}
         run: |
-          if [ "${{ github.event.pull_request.head.repo.fork }}" = "true" ]; then
+          if [ "$IS_FORK" = "true" ]; then
             echo "is_fork=true" >> $GITHUB_OUTPUT
           else
             echo "is_fork=false" >> $GITHUB_OUTPUT
@@ -71,11 +73,15 @@ jobs:
 
       - name: Determine PR number
         id: pr
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          INPUT_PR_NUMBER: ${{ github.event.inputs.pr_number }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request_target" ]; then
-            echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          if [ "$EVENT_NAME" = "pull_request_target" ]; then
+            echo "number=$PR_NUMBER" >> $GITHUB_OUTPUT
           else
-            echo "number=${{ github.event.inputs.pr_number }}" >> $GITHUB_OUTPUT
+            echo "number=$INPUT_PR_NUMBER" >> $GITHUB_OUTPUT
           fi
 
       - name: Ensure triage labels exist
